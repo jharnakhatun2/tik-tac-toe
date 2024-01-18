@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-key */
 /* eslint-disable for-direction */
 import { useState } from "react";
 
@@ -11,14 +12,11 @@ function Square({ value, onSquareClick }) {
     </button>
   );
 }
-export default function Board() {
-  const [square, setSquare] = useState(Array(9).fill(null));
-  const [xIsNext, setXIsNext] = useState(true);
-
+function Board({ square, xIsNext, onPlay }) {
   const winner = winnerCalculation(square);
   let status;
   if (winner) {
-    status = `Winner : <b>${winner}</b>`;
+    status = `Winner : ${winner}`;
   } else {
     status = `Next Player : ${xIsNext ? "x" : "0"}`;
   }
@@ -32,13 +30,12 @@ export default function Board() {
     } else {
       nextSquare[i] = "0";
     }
-    setSquare(nextSquare);
-    setXIsNext(!xIsNext);
+    onPlay(nextSquare);
   }
   console.log(square);
   return (
     <>
-      <div className="p-5">
+      <div className="">
         <div>{status}</div>
         <div className="flex">
           <Square value={square[0]} onSquareClick={() => handleClick(0)} />
@@ -79,4 +76,50 @@ function winnerCalculation(square) {
     }
   }
   return null;
+}
+
+export default function Game() {
+  const [history, setHistory] = useState([Array(9).fill(null)]);
+  const [xIsNext, setXIsNext] = useState(true);
+  const [currentMove, setCurrentMove] = useState(0);
+
+  const currentSquare = history[currentMove];
+
+  function handlePlay(nextSquare) {
+    setXIsNext(!xIsNext);
+    const nextHistory = [...history.slice(0, currentMove + 1), nextSquare];
+    setHistory(nextHistory);
+    setCurrentMove(nextHistory.length - 1);
+  }
+
+  function jumpTo(move) {
+    setCurrentMove(move);
+    setXIsNext(move % 2 === 0);
+  }
+
+  const move = history.map((square, move) => {
+    let description;
+    if (move > 0) {
+      description = `Go to the move # ${move}`;
+    } else {
+      description = `Go to start the Game`;
+    }
+    return (
+      <li key={move}>
+        <button onClick={() => jumpTo(move)}>{description}</button>
+      </li>
+    );
+  });
+  return (
+    <>
+      <div className="flex gap-10 p-5">
+        <div>
+          <Board square={currentSquare} xIsNext={xIsNext} onPlay={handlePlay} />
+        </div>
+        <div className="border p-2">
+          <ol>{move}</ol>
+        </div>
+      </div>
+    </>
+  );
 }
