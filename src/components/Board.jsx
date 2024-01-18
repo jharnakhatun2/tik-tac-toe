@@ -112,11 +112,11 @@ export default function Game() {
   });
   return (
     <>
-      <div className="flex gap-10 p-5">
+      <div className="block md:flex gap-10 p-5 justify-center">
         <div>
           <Board square={currentSquare} xIsNext={xIsNext} onPlay={handlePlay} />
         </div>
-        <div className="border p-2">
+        <div className="border p-2 inline-block mt-5 md:mt-0">
           <ol>{move}</ol>
         </div>
       </div>
